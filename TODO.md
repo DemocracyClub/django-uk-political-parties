@@ -1,0 +1,1 @@
+* Add full spec of JSON file to django models
