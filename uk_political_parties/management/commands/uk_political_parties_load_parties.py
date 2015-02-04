@@ -3,7 +3,7 @@ import json
 
 from django.core.management.base import BaseCommand
 
-from uk_political_parties.models import Party
+from uk_political_parties.models import Party, PartyEmblem
 
 
 class Command(BaseCommand):
@@ -37,3 +37,8 @@ class Command(BaseCommand):
             Party.objects.update_or_create(
                 party_id=party['party_id'],
                 defaults=self.clean_party(party))
+            if party['emblems']:
+                for emblem in party['emblems']:
+                    PartyEmblem.objects.update_or_create(
+                        party_id=party['party_id'],
+                        defaults={'emblem_url': emblem['image']})

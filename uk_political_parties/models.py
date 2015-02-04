@@ -90,6 +90,11 @@ class PartyManger(models.Manager):
             return match
 
 
+class PartyEmblem(models.Model):
+    party = models.ForeignKey('Party', related_name='emblems')
+    emblem_url = models.URLField(blank=True)
+
+
 class Party(models.Model):
     """
     Represents a UK political party.
@@ -110,6 +115,7 @@ class Party(models.Model):
 
     class Meta:
         verbose_name_plural = 'Parties'
+        ordering = ('party_name', )
 
     def save(self, *args, **kwargs):
         if self.party_id.startswith('TP'):
@@ -124,6 +130,6 @@ class Party(models.Model):
         super(Party, self).save(*args, **kwargs)
 
     def __unicode__(self):
-        return "%s (%s)" % (self.party_name, self.register)
+        return "%s (%s)" % (self.party_name, self.pk)
 
 
