@@ -1,0 +1,2 @@
+recursive-include uk_political_parties/management *
+recursive-include uk_political_parties/migrations *
