@@ -110,12 +110,13 @@ class Party(models.Model):
     party_type = models.CharField(blank=True, max_length=100)
     register = models.CharField(max_length=255,
         help_text="Country the party is registered in", null=True, blank=True)
+    weight = models.IntegerField(blank=True, null=True)
 
     objects = PartyManger()
 
     class Meta:
         verbose_name_plural = 'Parties'
-        ordering = ('party_name', )
+        ordering = ('-weight', 'party_name', )
 
     def save(self, *args, **kwargs):
         if self.party_id.startswith('TP'):
@@ -131,5 +132,3 @@ class Party(models.Model):
 
     def __unicode__(self):
         return "%s (%s)" % (self.party_name, self.pk)
-
-

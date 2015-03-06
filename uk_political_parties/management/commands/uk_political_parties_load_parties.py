@@ -12,6 +12,32 @@ class Command(BaseCommand):
         req = urlopen(base_url + '/parties/index.json')
         return json.loads(req.read())
 
+    def calculate_weight(self, party):
+        party_id = party['party_id']
+        weight = 0
+
+        if party_id.startswith('TP'):
+            weight += 1
+        if party_id.startswith('PerPar'):
+            weight += 2
+        if party_id.startswith('PPm'):
+            weight += 5
+        if party_id.startswith('PP'):
+            weight += 10
+
+        if 'register' in party:
+            if party['register'] == "Great Britain":
+                weight += 3
+            if party['register'] == "Northern Ireland":
+                weight += 1
+
+        if 'status' in party:
+            if party["status"] in [
+                    "Voluntarily Deregistered", "Statutorily Deregistered"]:
+                weight -= 100
+        print weight
+        return weight
+
     def clean_party(self, party):
         """
         Takes the raw dict from OpenElectoralCommission and returns a dict
@@ -28,15 +54,19 @@ class Command(BaseCommand):
             'email': party['email'],
             'status': party['status'],
             'register': party['register'],
+            'weight': self.calculate_weight(party),
         }
         return cleaned_party
 
     def handle(self, **options):
         parties = self.fetch_parties()
         for party in parties:
-            Party.objects.update_or_create(
+            (party_obj, cerated) = Party.objects.update_or_create(
                 party_id=party['party_id'],
                 defaults=self.clean_party(party))
+
+            party_obj.weight = self.calculate_weight(party)
+
             if party['emblems']:
                 for emblem in party['emblems']:
                     PartyEmblem.objects.update_or_create(
