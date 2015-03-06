@@ -71,4 +71,5 @@ class Command(BaseCommand):
                 for emblem in party['emblems']:
                     PartyEmblem.objects.update_or_create(
                         party_id=party['party_id'],
-                        defaults={'emblem_url': emblem['image']})
+                        emblem_url=emblem['image'],
+                    )

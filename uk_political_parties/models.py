@@ -5,6 +5,7 @@ import re
 from django.db import models
 from django_extensions.db.fields import  AutoSlugField
 
+
 class PartyManger(models.Manager):
 
     def find_party_by_name(self, name):
@@ -93,6 +94,9 @@ class PartyManger(models.Manager):
 class PartyEmblem(models.Model):
     party = models.ForeignKey('Party', related_name='emblems')
     emblem_url = models.URLField(blank=True)
+
+    class Meta:
+        ordering = ('emblem_url', )
 
 
 class Party(models.Model):
