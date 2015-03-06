@@ -1,4 +1,10 @@
 from django.contrib import admin
-from .models import Party
+from .models import Party, PartyEmblem
 
-admin.site.register(Party)
+class PartyEmblemInline(admin.TabularInline):
+    model = PartyEmblem
+
+class PartyAdmin(admin.ModelAdmin):
+    inlines = [PartyEmblemInline, ]
+
+admin.site.register(Party, PartyAdmin)
