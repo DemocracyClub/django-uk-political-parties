@@ -1,5 +1,4 @@
-from urllib2 import urlopen
-import json
+import requests
 
 from django.core.management.base import BaseCommand
 
@@ -7,38 +6,8 @@ from uk_political_parties.models import Party, PartyEmblem
 
 
 class Command(BaseCommand):
-    def fetch_parties(self):
-        base_url = "http://openelectoralcommission.org.uk"
-        req = urlopen(base_url + '/parties/index.json')
-        return json.loads(req.read())
 
-    def calculate_weight(self, party):
-        party_id = party['party_id']
-        weight = 0
-
-        if party_id.startswith('TP'):
-            weight += 1
-        if party_id.startswith('PerPar'):
-            weight += 2
-        if party_id.startswith('PPm'):
-            weight += 5
-        if party_id.startswith('PP'):
-            weight += 10
-
-        if 'register' in party:
-            if party['register'] == "Great Britain":
-                weight += 3
-            if party['register'] == "Northern Ireland":
-                weight += 1
-
-        if 'status' in party:
-            if party["status"] in [
-                    "Voluntarily Deregistered", "Statutorily Deregistered"]:
-                weight -= 100
-        print weight
-        return weight
-
-    def clean_party(self, party):
+    def clean_party(self, party_id, party):
         """
         Takes the raw dict from OpenElectoralCommission and returns a dict
         that's able to be used by the django model.  This is needed because
@@ -46,30 +15,43 @@ class Command(BaseCommand):
         """
 
         cleaned_party = {
-            'party_id': party['party_id'],
-            'party_name': party['party_name'],
-            'registered_date': party['registered_date'].split('T')[0],
-            'party_address': party['party_address'],
-            'postcode': party.get('postcode'),
-            'email': party['email'],
-            'status': party['status'],
-            'register': party['register'],
-            'weight': self.calculate_weight(party),
+            'party_id': party_id,
+            'party_name': party['name'],
+            'registered_date': party['founding_date'],
+            'register': party['party_sets'][0]['slug'],
         }
         return cleaned_party
 
     def handle(self, **options):
-        parties = self.fetch_parties()
-        for party in parties:
-            (party_obj, cerated) = Party.objects.update_or_create(
-                party_id=party['party_id'],
-                defaults=self.clean_party(party))
+        print("workng")
 
-            party_obj.weight = self.calculate_weight(party)
+        base_url = "https://candidates.democracyclub.org.uk"
+        url = "{}/api/v0.9/organizations/".format(base_url)
 
-            if party['emblems']:
-                for emblem in party['emblems']:
-                    PartyEmblem.objects.update_or_create(
-                        party_id=party['party_id'],
-                        emblem_url=emblem['image'],
-                    )
+        while url:
+            req = requests.get(url)
+            results = req.json()
+            organizations = results['results']
+            for org in organizations:
+                if org['classification'] != "Party":
+                    continue
+
+                party_id = [
+                    i['identifier'] for i in org['identifiers']
+                    if i['scheme'] == "electoral-commission"
+                ]
+                if party_id:
+                    party_id = party_id[0]
+                else:
+                    continue
+                (party_obj, cerated) = Party.objects.update_or_create(
+                    party_id=party_id,
+                    defaults=self.clean_party(party_id, org))
+
+                if org['images']:
+                    for emblem in org['images']:
+                        PartyEmblem.objects.update_or_create(
+                            party_id=party_id,
+                            emblem_url=emblem['image_url'],
+                        )
+            url = results.get('next', None)
