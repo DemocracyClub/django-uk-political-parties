@@ -32,9 +32,9 @@ class PartyManger(models.Manager):
             return "UK Independence Party (UK I P)"
         if name == "Independent or Independent Network":
             return "Independent"
-        if name == u"National Liberal Party, Third Way":
+        if name == "National Liberal Party, Third Way":
             return "Ulster Third Way"
-        if name == u"National Liberal Party, The Third Way":
+        if name == "National Liberal Party, The Third Way":
             return "Ulster Third Way"
         if name == "Plaid Cymru - Party of Wales":
             return "Plaid Cymru - The Party of Wales"
@@ -110,7 +110,8 @@ class PartyManger(models.Manager):
 
 
 class PartyEmblem(models.Model):
-    party = models.ForeignKey('Party', related_name='emblems')
+    party = models.ForeignKey('Party', related_name='emblems',
+                              on_delete=models.CASCADE)
     emblem_url = models.URLField(blank=True)
 
     class Meta:
