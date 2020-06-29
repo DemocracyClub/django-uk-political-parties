@@ -24,6 +24,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='partyemblem',
             name='party',
-            field=models.ForeignKey(related_name=b'emblems', to='uk_political_parties.Party'),
+            field=models.ForeignKey(related_name=b'emblems', to='uk_political_parties.Party', on_delete=models.CASCADE),
         ),
     ]

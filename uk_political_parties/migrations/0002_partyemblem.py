@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('emblem_url', models.URLField(blank=True)),
-                ('party', models.ForeignKey(to='uk_political_parties.Party')),
+                ('party', models.ForeignKey(to='uk_political_parties.Party', on_delete=models.CASCADE)),
             ],
             options={
             },
