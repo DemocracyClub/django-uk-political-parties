@@ -9,7 +9,7 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='django-uk-political-parties',
-    version='0.3',
+    version='0.4',
     packages=['uk_political_parties'],
     include_package_data=True,
     license='BSD License',  # example license
