@@ -22,9 +22,9 @@ class Migration(migrations.Migration):
                 ('postcode', models.CharField(max_length=15, null=True, blank=True)),
                 ('email', models.EmailField(max_length=75, null=True, blank=True)),
                 ('status', models.CharField(max_length=100, blank=True)),
-                ('slug', django_extensions.db.fields.AutoSlugField(populate_from=b'party_name', editable=False, blank=True)),
+                ('slug', django_extensions.db.fields.AutoSlugField(populate_from='party_name', editable=False, blank=True)),
                 ('party_type', models.CharField(max_length=100, blank=True)),
-                ('register', models.CharField(help_text=b'Country the party is registered in', max_length=255, null=True, blank=True)),
+                ('register', models.CharField(help_text='Country the party is registered in', max_length=255, null=True, blank=True)),
             ],
             options={
                 'verbose_name_plural': 'Parties',
